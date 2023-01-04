@@ -1,66 +1,89 @@
 <?php
-
-$name = '';
-$emblem = '';
-$power = '';
-$primary = '';
-$power_weapon = '';
 $error = '';
-$new = '';
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
     $apiKey = "6708401f544e40c8b81d1f46bbb189f3";
 
-    $characters = ["Titan","Hunter","Warlock"];
+    $classes = ['Titan','Hunter','Warlock'];
 
-    $temp_id1 = htmlspecialchars($_POST['id1']);
-    $temp_id2 = htmlspecialchars($_POST['id2']);
-    $temp_type = htmlspecialchars($_POST['type']);
-    $temp_bungo = htmlspecialchars($_POST['bungo']);
+    $temp_id = htmlspecialchars($_POST['id']);
 
 
 
 
+    if(preg_match('/.{2,26}#[0-9]{4}/',trim($temp_id))){
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$temp_type/Profile/$temp_id1/Character/$temp_id2/?components=200,205");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+        $display_name = explode('#',trim($temp_id))[0];
+        $display_number = explode('#',trim($temp_id))[1];
 
-    $json0 = json_decode(curl_exec($ch));
+        $ch = curl_init();
 
-    $name =  $characters[$json0->Response->character->data->classType];
 
-    $emblem = "https://www.bungie.net/".$json0->Response->character->data->emblemBackgroundPath;
+        $post_data = "{
+        \"displayName\": \"$display_name\", \"displayNameCode\": $display_number}";
 
-    $power = $json0->Response->character->data->light;
+        curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayerByBungieName/1/");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+        curl_setopt($ch,CURLOPT_POST, true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $post_data);
+        $json0 = json_decode(curl_exec($ch));
 
-    $weapons_ids = $json0->Response->equipment->data->items;
-    $primary_id = $weapons_ids[0]->itemHash;
-    $power_id = $weapons_ids[2]->itemHash;
+        if($json0->Response != []){
 
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/$primary_id/");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+            $membershipid = $json0->Response[0]->membershipId;
+            $membership_type = $json0->Response[0]->membershipType;
 
-    $primary = json_decode(curl_exec($ch))->Response->displayProperties->name;
-    $primary_pic = "https://www.bungie.net/".json_decode(curl_exec($ch))->Response->displayProperties->icon;
+            curl_setopt($ch,CURLOPT_POST, false);
+            curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$membership_type/Profile/$membershipid/LinkedProfiles/");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+            $json1 = json_decode(curl_exec($ch));
 
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/$power_id/");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+            for($i = 0; $i < 4; $i++){
+                if($json1->Response->profiles[$i]->isCrossSavePrimary){
+                    $membershipid = $json1->Response->profiles[$i]->membershipId;
+                    $membership_type = $json1->Response->profiles[$i]->membershipType;
+                    break;
+                }
+            }
 
-    $power_weapon = json_decode(curl_exec($ch))->Response->displayProperties->name;
-    $power_pic = "https://www.bungie.net/".json_decode(curl_exec($ch))->Response->displayProperties->icon;
+            curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$membership_type/Profile/$membershipid/?components=100,200");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
+            $json2 = json_decode(curl_exec($ch));
 
-    $post_data = ['displayName' => $temp_bungo, 'displayNameCode' => 8833];
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayerByBungieName/1/");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
-    curl_setopt($ch,CURLOPT_POST, true);
-    curl_setopt($ch,CURLOPT_POSTFIELDS, $post_data);
+            $user_characters = $json2->Response->profile->data->characterIds;
 
-    $new = json_decode(curl_exec($ch))->Response->displayName;
+            if($user_characters[0]){
+                $char0type = $classes[$json2->Response->characters->data->{$user_characters[0]}->classType];
+                $char0light = $json2->Response->characters->data->{$user_characters[0]}->light;
+            }
+            if($user_characters[1]){
+                $char1type = $classes[$json2->Response->characters->data->{$user_characters[1]}->classType];
+                $char1light = $json2->Response->characters->data->{$user_characters[1]}->light;
+            }
+            if($user_characters[2]){
+                $char2type = $classes[$json2->Response->characters->data->{$user_characters[2]}->classType];
+                $char2light = $json2->Response->characters->data->{$user_characters[2]}->light;
+            }
+
+            curl_close($ch);
+
+            header("Location: CharacterSelect.php?char0[]=$char0type&char0[]=$char0light&char1[]=$char1type&char1[]=$char1light&char2[]=$char2type&char2[]=$char2light&ids[]=$user_characters[0]&ids[]=$user_characters[1]&ids[]=$user_characters[2]&type=$membership_type&membership=$membershipid");
+            exit();
+
+
+        }
+        else{
+            $error = "<br><br>".'This Bungie Name does not exist';
+        }
+    }
+    else{
+        $error = "<br><br>".'Invalid format, please try again';
+    }
+
+
 
 
 
@@ -75,62 +98,19 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 <body>
 <header>
     <h1>
-        Display Character
+        User Selection
     </h1>
 
+</header>
 
     <form method="POST" action="">
-        MembershipID: <input type="text" name = "id1" required> <br> <br>
-        CharacterID: <input type="text" name = "id2" required > <br> <br>
-        Membership Type: <input type="text" name = "type" required> <br> <br>
-        Bungie ID: <input type="text" name = "bungo" required> <br> <br>
+        <label for = "id">Enter Bungie Name:</label><br>(Format: Name#7777)
+        <input type="text" name = "id" id = "id" required> <br> <br>
         <input type="submit" value="Submit">
     </form>
-
-    <style>
-        table, th, td {
-            border: 1px solid cadetblue;
-            padding: 5px;
-        }
-        table {
-            border-spacing: 15px;
-        }
-    </style>
-
-
     <br>
     <br>
-    <?= $error?>
-    <br>
-    <br>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Emblem</th>
-            <th>Current Power</th>
-            <th>Primary Weapon</th>
-            <th>Highest Power Heavy Weapon</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td><?=$name?></td>
-            <td><img src=<?="$emblem"?>></td>
-            <td><?=$power?></td>
-            <td><?=$primary?></td>
-            <td><?=$power_weapon?></td>
-        </tr>
-        <tr>
-            <td><?=$new?></td>
-            <td></td>
-            <td></td>
-            <td><img src=<?="$primary_pic"?>></td>
-            <td><img src=<?="$power_pic"?>></td>
-        </tr>
-        </tbody>
-    </table>
-</header>
+    <?=$error?>
 
 </body>
 </html>
