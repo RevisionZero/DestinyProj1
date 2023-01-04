@@ -19,7 +19,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$temp_type/Profile/$temp_id1/Character/$temp_id2/?components=200");
+    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$temp_type/Profile/$temp_id1/Character/$temp_id2/?components=200,205");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
 
@@ -31,26 +31,14 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
     $power = $json0->Response->character->data->light;
 
+    $weapons_ids = $json0->Response->equipment->data->items;
+    $primary_id = $weapons_ids[0]->itemInstanceId;
+    $power_id = $weapons_ids[2]->itemInstanceId;
 
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$temp_type/Profile/$temp_id1/Character/$temp_id2/?components=205");
+    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$temp_type/Profile/$temp_id1/Character/$temp_id2/?components=200,205");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
 
-    $weapons_ids = json_decode(curl_exec($ch))->Response->equipment->data->items;
-    $primary_id = $weapons_ids[0]->itemHash;
-    $power_id = $weapons_ids[2]->itemHash;
-
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny/Definitions/DestinyInventoryItemDefinition/$primary_id");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
-
-    $primary = json_decode(curl_exec($ch))->Response->displayProperties->name;
-
-    curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny/Definitions/DestinyInventoryItemDefinition/$power_id");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
-
-    $power_weapon = json_decode(curl_exec($ch))->Response->displayProperties->name;
 
 }
 
@@ -74,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     </form>
     <br>
     <br>
-    <?= ?>
+    <?= $error?>
     <br>
     <br>
     <table>
