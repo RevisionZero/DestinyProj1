@@ -12,6 +12,8 @@ $emblem = '';
 $power = '';
 $primary = '';
 $power_weapon = '';
+$primary_pic = 'https://www.bungie.net/common/destiny2_content/icons/0f3e38e82bac5e8c78d1a47be53341e0.jpg';
+$power_pic = "https://www.bungie.net/common/destiny2_content/icons/4d46c45f1b4b48eced9ff1f766d6e8b4.jpg";
 
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
@@ -71,6 +73,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         }
     </style>
 
+    <br>
+    <br>
+    <button><a href="DestinyProj1.php">Back to User Selection</a></button>
     <br>
     <br>
     <form method="POST" action="" >

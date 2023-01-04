@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $post_data = "{
         \"displayName\": \"$display_name\", \"displayNameCode\": $display_number}";
 
-        curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayerByBungieName/1/");
+        curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayerByBungieName/All/");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
         curl_setopt($ch,CURLOPT_POST, true);
