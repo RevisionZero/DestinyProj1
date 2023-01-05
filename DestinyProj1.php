@@ -1,5 +1,6 @@
 <?php
 $error = '';
+$temp_id = '';
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
     $apiKey = "6708401f544e40c8b81d1f46bbb189f3";
@@ -10,14 +11,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
 
 
-
     if(preg_match('/.{2,26}#[0-9]{4}/',trim($temp_id))){
 
         $display_name = explode('#',trim($temp_id))[0];
         $display_number = explode('#',trim($temp_id))[1];
 
         $ch = curl_init();
-
 
         $post_data = "{
         \"displayName\": \"$display_name\", \"displayNameCode\": $display_number}";
@@ -36,8 +35,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
             curl_setopt($ch,CURLOPT_POST, false);
             curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$membership_type/Profile/$membershipid/LinkedProfiles/");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
             $json1 = json_decode(curl_exec($ch));
 
             for($i = 0; $i < 4; $i++){
@@ -49,8 +46,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             }
 
             curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/$membership_type/Profile/$membershipid/?components=100,200");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
             $json2 = json_decode(curl_exec($ch));
 
             $user_characters = $json2->Response->profile->data->characterIds;
@@ -73,7 +68,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             header("Location: CharacterSelect.php?char0[]=$char0type&char0[]=$char0light&char1[]=$char1type&char1[]=$char1light&char2[]=$char2type&char2[]=$char2light&ids[]=$user_characters[0]&ids[]=$user_characters[1]&ids[]=$user_characters[2]&type=$membership_type&membership=$membershipid");
             exit();
 
-
         }
         else{
             $error = "<br><br>".'This Bungie Name does not exist';
@@ -83,34 +77,48 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $error = "<br><br>".'Invalid format, please try again';
     }
 
-
-
-
-
 }
-
-
 
 ?>
 
 <!DOCTYPE html>
 <html>
-<body>
-<header>
-    <h1>
-        User Selection
-    </h1>
+<head>
+    <style>
+        .center {
+            text-align: center;
+            padding-top: 200px;
+            margin: auto;
+            font-size:45px;
+        }
+        .tab {
+            tab-size: 4px;
+        }
+        .pad{
+            padding-top:200px;
+        }
+        .center2 {
+            margin: auto;
+            width: 20%;
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body style="background-color: darkcyan">
 
-</header>
-
+<div class="center">
+    <img src="https://www.freepnglogos.com/uploads/destiny-logo-png/image-destiny-logo-white-rwby-fanon-wiki-fandom-5.png" width="50" height="50"> Destiny 2 Character Viewer
+</div>
+<br>
+<div class="center2">
     <form method="POST" action="">
-        <label for = "id">Enter Bungie Name:</label><br>(Format: Name#7777)
-        <input type="text" name = "id" id = "id" required> <br> <br>
-        <input type="submit" value="Submit">
+        <label for = "id">Enter Bungie Name:</label>
+        <input type="text" name = "id" id = "id" required value=<?=$temp_id?>>
+        <input type="submit" value="Submit" style="font-size: 16px">
+        <p style="font-size: 18px">(Format: Name#7777)</p>
     </form>
-    <br>
-    <br>
-    <?=$error?>
+    <p style="font-size: 20px"><?=$error?></p>
+</div>
 
 </body>
 </html>

@@ -39,15 +39,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $power_id = $weapons_ids[2]->itemHash;
 
     curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/$primary_id/");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
 
     $primary = json_decode(curl_exec($ch))->Response->displayProperties->name;
     $primary_pic = "https://www.bungie.net/".json_decode(curl_exec($ch))->Response->displayProperties->icon;
 
     curl_setopt($ch, CURLOPT_URL, "https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/$power_id/");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-API-Key: ' . $apiKey));
 
     $power_weapon = json_decode(curl_exec($ch))->Response->displayProperties->name;
     $power_pic = "https://www.bungie.net/".json_decode(curl_exec($ch))->Response->displayProperties->icon;
@@ -58,27 +54,38 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 ?>
 
 <html>
-<body>
-<header>
-    <h1>Character Select</h1>
-</header>
-
+<head>
     <style>
-        table, th, td {
+        th{
             border: 1px solid cadetblue;
             padding: 5px;
         }
+        td{
+            border: 1px solid cadetblue;
+            padding: 7px;
+            text-align: center;
+        }
         table {
-            border-spacing: 15px;
+            border-spacing: 0px;
+            margin: auto;
+        }
+        .left{
+            padding-left: 30px;
+            padding-top: 30px;
+        }
+        body{
+            background-color: lightslategrey;
+            font-family: SansSerif;
         }
     </style>
-
+</head>
+<body>
+<div class="left">
+    <h1>
+        Character View
+    </h1>
     <br>
-    <br>
-    <button><a href="DestinyProj1.php">Back to User Selection</a></button>
-    <br>
-    <br>
-    <form method="POST" action="" >
+    <form method="POST" action="">
         <label for = "character"</label>Select Character:
         <select name = "character" id = "character">
             <option value = <?=$ids[0]?> > <?=$char0[0]?> (<?=$char0[1]?>)</option>
@@ -91,30 +98,35 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     </form>
     <br>
     <br>
-    <table>
-        <thead>
-        <tr>
-            <th>Emblem</th>
-            <th>Current Power</th>
-            <th>Primary Weapon</th>
-            <th>Highest Power Heavy Weapon</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td><img src=<?="$emblem"?>></td>
-            <td><?=$power?></td>
-            <td><?=$primary?></td>
-            <td><?=$power_weapon?></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td><img src=<?="$primary_pic"?> alt = ""></td>
-            <td><img src=<?="$power_pic"?> alt = ""></td>
-        </tr>
-        </tbody>
-    </table>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Emblem</th>
+        <th>Current Power</th>
+        <th>Primary Weapon</th>
+        <th>Highest Power Heavy Weapon</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><img src=<?="$emblem"?>></td>
+        <td><?=$power?></td>
+        <td><?=$primary?></td>
+        <td><?=$power_weapon?></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td><img src=<?="$primary_pic"?> alt = ""></td>
+        <td><img src=<?="$power_pic"?> alt = ""></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<div style="padding-left: 30px">
+    <button><a href="DestinyProj1.php">Back to User Selection</a></button>
+</div>
 </body>
 </html>
 
