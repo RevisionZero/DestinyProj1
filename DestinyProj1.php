@@ -1,9 +1,10 @@
 <?php
+session_start();
 $error = '';
 $temp_id = '';
+$apiKey = $_SESSION['theapikey'];
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
-    $apiKey = "6708401f544e40c8b81d1f46bbb189f3";
 
     $classes = ['Titan','Hunter','Warlock'];
 
